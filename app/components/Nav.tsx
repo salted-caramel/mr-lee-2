@@ -8,9 +8,7 @@ const Nav = () => {
           <p className="text-xl">Mr Lee</p>
         </a>
       </div>
-      <div className="navbar-end">
-        <a className="btn">中文</a>
-      </div>
+      <div className="navbar-end">{/* <a className="btn">中文</a> */}</div>
     </div>
   );
 };
