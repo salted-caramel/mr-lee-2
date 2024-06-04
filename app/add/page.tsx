@@ -15,6 +15,7 @@ const Page = () => {
     fetchHolidays()
       .then((data) => {
         setHolidays(data);
+        // console.log(data)
       })
       .catch((error) => {
         console.error("Error fetching holidays: ", error);
@@ -76,6 +77,12 @@ const Page = () => {
         >
           Retrieve current holidays
         </button>
+        {holidays && (
+          <div className="mt-4">
+            <h2 className="text-xl font-bold">Current Holidays</h2>
+            <pre>{JSON.stringify(holidays, null, 2)}</pre>
+          </div>
+        )}
       </div>
     </div>
   );

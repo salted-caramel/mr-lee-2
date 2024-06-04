@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const Nav = () => {
   const [clickCount, setClickCount] = useState(0);
   const router = useRouter();
 
+  useEffect(() => {
+    if (clickCount === 7) {
+      router.push("/add");
+    }
+  }, [clickCount, router]);
+
   const handleButtonClick = () => {
-    setClickCount((prevCount) => {
-      const newCount = prevCount + 1;
-      if (newCount === 7) {
-        router.push("/add");
-      }
-      return newCount;
-    });
+    setClickCount((prevCount) => prevCount + 1);
   };
 
   return (
