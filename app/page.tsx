@@ -73,13 +73,6 @@ export default function Home() {
         >
           Directions
         </a>
-        <a
-          role="button"
-          className="btn btn-secondary w-40"
-          href="tel:+6596754306"
-        >
-          Call for more info
-        </a>
       </div>
       {hasWorkingDays ? (
         <>
