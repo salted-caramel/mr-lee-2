@@ -4,10 +4,12 @@ import Closed from "./components/Closed";
 import Nav from "./components/Nav";
 import Open from "./components/Open";
 import { fetchHolidays } from "./firebaseHolidayFetcher";
+import { LanguageChangeProps } from "./components/types"; // Import the interface
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
   const [holidays, setHolidays] = useState<any>({});
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     fetchHolidays()
@@ -60,10 +62,24 @@ export default function Home() {
 
   const hasWorkingDays = workingDays.length > 0;
 
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "cn" : "en");
+  };
+
   return (
     <div className="px-6 bg-gray-800 text-lg text-white">
-      <Nav />
-      <div>{isOpen ? <Open /> : <Closed />}</div>
+      <div>
+        <Nav
+          onLanguageChange={{
+            currentLanguage: language,
+            onChange: toggleLanguage,
+          }}
+        />
+      </div>
+
+      <div>
+        {isOpen ? <Open language={language} /> : <Closed language={language} />}{" "}
+      </div>
       <div className="flex flex-col gap-4 items-center mt-8">
         <a
           role="button"
@@ -71,12 +87,16 @@ export default function Home() {
           href="https://www.google.com/maps/dir//Block+39+Upper+Boon+Keng+Road+%2310-2412,+Singapore+380039"
           target="_blank"
         >
-          Directions
+          {language === "en" ? "Directions" : "路线"}
         </a>
       </div>
       {hasWorkingDays ? (
         <>
-          <h2 className="text-2xl mt-8">Working Days in the Next Two Weeks:</h2>
+          <h2 className="text-2xl mt-8">
+            {language === "en"
+              ? "Working Days in the Next Two Weeks:"
+              : "未来两周工作日"}
+          </h2>
           <ul className="list-disc list-inside">
             {workingDays.map((day) => (
               <li key={day}>{day}</li>
@@ -84,7 +104,11 @@ export default function Home() {
           </ul>
         </>
       ) : (
-        <p className="mt-8">There are no working days in the next two weeks.</p>
+        <p className="mt-8">
+          {language === "en"
+            ? "There are no working days in the next two weeks."
+            : "未来两周没有工作日 (Wèi lái liǎng zhōu méi yǒu gōngzuò rì)"}
+        </p>
       )}
     </div>
   );

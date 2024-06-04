@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { LanguageChangeProps } from "./types"; // Import the interface
 
-const Nav = () => {
-  const [clickCount, setClickCount] = useState(0);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (clickCount === 7) {
-      router.push("/add");
+const Nav = ({
+  onLanguageChange,
+}: {
+  onLanguageChange: LanguageChangeProps;
+}) => {
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (typeof onLanguageChange.onChange === "function") {
+      onLanguageChange.onChange(event);
+    } else {
+      console.error("onChange is not a function"); // Handle the error gracefully
     }
-  }, [clickCount, router]);
-
-  const handleButtonClick = () => {
-    setClickCount((prevCount) => prevCount + 1);
   };
 
   return (
@@ -22,7 +21,11 @@ const Nav = () => {
           <p className="text-xl">Mr Lee</p>
         </button>
       </div>
-      <div className="navbar-end">{/* <a className="btn">中文</a> */}</div>
+      <div className="navbar-end">
+        <button className="btn" onClick={handleButtonClick}>
+          {onLanguageChange.currentLanguage === "en" ? "中文" : "English"}
+        </button>
+      </div>
     </div>
   );
 };
