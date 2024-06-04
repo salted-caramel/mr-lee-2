@@ -5,7 +5,7 @@ import SignIn from "../components/SignIn";
 import { useRouter } from "next/navigation";
 import { fetchHolidays } from "../firebaseHolidayFetcher";
 
-const page = () => {
+const Page = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
@@ -81,4 +81,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

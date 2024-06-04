@@ -13,7 +13,7 @@ const Open = () => {
         Open today: 10am - 12pm, 2.30pm to 5pm
       </h2>
       <div className="flex flex-col gap-1 my-8">
-        <p>Today's Date: {formattedDate} </p>
+        <p>Today&apos;s Date: {formattedDate} </p>
         <p>Address: Block 39 Upper Boon Keng Road #10-2412 (S) 380039</p>
       </div>
     </div>
