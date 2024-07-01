@@ -5,6 +5,7 @@ import Nav from "./components/Nav";
 import Open from "./components/Open";
 import { fetchHolidays } from "./firebaseHolidayFetcher";
 import { LanguageChangeProps } from "./components/types"; // Import the interface
+import WhatsAppIcon from "./components/WhatsappIcon";
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
@@ -110,6 +111,7 @@ export default function Home() {
             : "未来两周没有工作日 (Wèi lái liǎng zhōu méi yǒu gōngzuò rì)"}
         </p>
       )}
+      <WhatsAppIcon />
     </div>
   );
 }
