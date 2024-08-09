@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Closed from "./components/Closed";
 import Nav from "./components/Nav";
@@ -8,7 +9,7 @@ import WhatsAppIcon from "./components/WhatsappIcon";
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
-  const [holidays, setHolidays] = useState<any>({});
+  const [holidays, setHolidays] = useState<Record<string, string>>({});
   const [language, setLanguage] = useState("en");
 
   useEffect(() => {
@@ -40,8 +41,8 @@ export default function Home() {
 
   const todaysDate = today.toLocaleDateString("en-GB", {
     year: "numeric",
-    month: "numeric",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
 
   console.log("Today's Date: ", todaysDate); // Log today's date
@@ -60,8 +61,7 @@ export default function Home() {
       day: "2-digit",
     });
 
-    const isHoliday =
-      holidays && Object.values(holidays).includes(formattedDate);
+    const isHoliday = holidays && holidays.hasOwnProperty(formattedDate);
     return [1, 3, 5].includes(day) && !isHoliday;
   };
 
@@ -124,7 +124,7 @@ export default function Home() {
         <p className="mt-8">
           {language === "en"
             ? "There are no working days in the next two weeks."
-            : "未来两周没有工作日 (Wèi lái liǎng zhōu méi yǒu gōngzuò rì)"}
+            : "未来两周没有工作日 (Wèi láng liǎng zhōu méi yǒu gōngzuò rì)"}
         </p>
       )}
       <WhatsAppIcon />
