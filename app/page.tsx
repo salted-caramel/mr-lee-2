@@ -1,21 +1,33 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Closed from "./components/Closed";
 import Nav from "./components/Nav";
 import Open from "./components/Open";
 import { fetchHolidays } from "./firebaseHolidayFetcher";
-import { LanguageChangeProps } from "./components/types"; // Import the interface
 import WhatsAppIcon from "./components/WhatsappIcon";
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
-  const [holidays, setHolidays] = useState<any>({});
+  const [holidays, setHolidays] = useState<Record<string, string>>({});
   const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     fetchHolidays()
       .then((data) => {
-        setHolidays(data || {});
+        console.log("Fetched Holidays: ", data);
+
+        // Reverse the holidays object
+        const reversedHolidays = Object.keys(data).reduce(
+          (acc: Record<string, string>, key) => {
+            const date = data[key];
+            acc[date] = key;
+            return acc;
+          },
+          {}
+        );
+
+        setHolidays(reversedHolidays);
       })
       .catch((error) => {
         console.error("Error fetching holidays: ", error);
@@ -28,13 +40,18 @@ export default function Home() {
   const isOpenDay = [1, 3, 5].includes(dayOfWeek);
 
   const todaysDate = today.toLocaleDateString("en-GB", {
-    month: "numeric",
-    day: "numeric",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
 
-  const isHoliday = holidays && holidays.hasOwnProperty(todaysDate);
+  console.log("Today's Date: ", todaysDate); // Log today's date
+  console.log("Is Holiday: ", holidays.hasOwnProperty(todaysDate)); // Check if today is a holiday
 
+  const isHoliday = holidays && holidays.hasOwnProperty(todaysDate);
   const isOpen = isOpenDay && !isHoliday;
+
+  console.log("Is Open: ", isOpen); // Log if it's open
 
   const isWorkingDay = (date: Date) => {
     const day = date.getDay();
@@ -44,8 +61,7 @@ export default function Home() {
       day: "2-digit",
     });
 
-    const isHoliday =
-      holidays && Object.values(holidays).includes(formattedDate);
+    const isHoliday = holidays && holidays.hasOwnProperty(formattedDate);
     return [1, 3, 5].includes(day) && !isHoliday;
   };
 
@@ -108,7 +124,7 @@ export default function Home() {
         <p className="mt-8">
           {language === "en"
             ? "There are no working days in the next two weeks."
-            : "未来两周没有工作日 (Wèi lái liǎng zhōu méi yǒu gōngzuò rì)"}
+            : "未来两周没有工作日 (Wèi láng liǎng zhōu méi yǒu gōngzuò rì)"}
         </p>
       )}
       <WhatsAppIcon />

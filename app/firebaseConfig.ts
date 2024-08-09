@@ -1,9 +1,9 @@
 "use client";
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getDatabase } from "firebase/database";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAnalytics, Analytics } from "firebase/analytics";
+import { getDatabase, Database } from "firebase/database";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,15 +16,14 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-let analytics;
-if (typeof window !== "undefined") {
+let analytics: Analytics | undefined;
+if (typeof window !== "undefined" && app) {
   analytics = getAnalytics(app);
 }
 
-const database = getDatabase(app);
-const auth = getAuth(app);
+const database: Database = getDatabase(app);
+const auth: Auth = getAuth(app);
 
 export { database, analytics, auth };

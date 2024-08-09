@@ -17,7 +17,7 @@ const Nav = ({
   return (
     <div className="navbar bg-gray-800">
       <div className="navbar-start">
-        <button className="btn btn-ghost text-xl" onClick={handleButtonClick}>
+        <button className="btn btn-ghost text-xl">
           <p className="text-xl">Mr Lee</p>
         </button>
       </div>
