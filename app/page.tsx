@@ -4,30 +4,37 @@ import { useEffect, useState } from "react";
 import Closed from "./components/Closed";
 import Nav from "./components/Nav";
 import Open from "./components/Open";
+import OpenHalfday from "./components/OpenHalfday"; // Import the OpenHalfday component
 import { fetchHolidays } from "./firebaseHolidayFetcher";
 import WhatsAppIcon from "./components/WhatsappIcon";
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
   const [holidays, setHolidays] = useState<Record<string, string>>({});
+  const [halfDayHolidays, setHalfDayHolidays] = useState<
+    Record<string, string>
+  >({});
   const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     fetchHolidays()
       .then((data) => {
-        console.log("Fetched Holidays: ", data);
+        // Separate full-day and half-day holidays
+        const fullDayHolidays: Record<string, string> = {};
+        const halfDays: Record<string, string> = {};
 
-        // Reverse the holidays object
-        const reversedHolidays = Object.keys(data).reduce(
-          (acc: Record<string, string>, key) => {
-            const date = data[key];
-            acc[date] = key;
-            return acc;
-          },
-          {}
-        );
+        Object.keys(data).forEach((key) => {
+          const date = data[key];
+          if (key.startsWith("halfday_")) {
+            halfDays[date] = key;
+          } else {
+            fullDayHolidays[date] = key;
+          }
+        });
 
-        setHolidays(reversedHolidays);
+        // set full and half days
+        setHolidays(fullDayHolidays);
+        setHalfDayHolidays(halfDays);
       })
       .catch((error) => {
         console.error("Error fetching holidays: ", error);
@@ -45,13 +52,12 @@ export default function Home() {
     day: "2-digit",
   });
 
-  console.log("Today's Date: ", todaysDate); // Log today's date
-  console.log("Is Holiday: ", holidays.hasOwnProperty(todaysDate)); // Check if today is a holiday
-
   const isHoliday = holidays && holidays.hasOwnProperty(todaysDate);
-  const isOpen = isOpenDay && !isHoliday;
+  const isHalfDay =
+    halfDayHolidays && halfDayHolidays.hasOwnProperty(todaysDate);
 
-  console.log("Is Open: ", isOpen); // Log if it's open
+  const isOpen = isOpenDay && !isHoliday && !isHalfDay;
+  const isOpenHalfDay = isOpenDay && isHalfDay;
 
   const isWorkingDay = (date: Date) => {
     const day = date.getDay();
@@ -62,7 +68,10 @@ export default function Home() {
     });
 
     const isHoliday = holidays && holidays.hasOwnProperty(formattedDate);
-    return [1, 3, 5].includes(day) && !isHoliday;
+    const isHalfDay =
+      halfDayHolidays && halfDayHolidays.hasOwnProperty(formattedDate);
+
+    return [1, 3, 5].includes(day) && !isHoliday && !isHalfDay;
   };
 
   const workingDays = [];
@@ -95,7 +104,13 @@ export default function Home() {
       </div>
 
       <div>
-        {isOpen ? <Open language={language} /> : <Closed language={language} />}{" "}
+        {isOpen ? (
+          <Open language={language} />
+        ) : isOpenHalfDay ? (
+          <OpenHalfday language={language} />
+        ) : (
+          <Closed language={language} />
+        )}
       </div>
       <div className="flex flex-col gap-4 items-center mt-8">
         <a
@@ -124,7 +139,7 @@ export default function Home() {
         <p className="mt-8">
           {language === "en"
             ? "There are no working days in the next two weeks."
-            : "未来两周没有工作日 (Wèi láng liǎng zhōu méi yǒu gōngzuò rì)"}
+            : "未来两周没有工作日"}
         </p>
       )}
       <WhatsAppIcon />
