@@ -17,7 +17,7 @@ const Open = ({ language }: { language: string }) => {
     cn: {
       openToday: "今天营业时间: 上午10点至12点，下午2.30点半至5点",
       todaysDate: "今天的日期:",
-      address: "地址: 大牌39 Upper Boon Keng Road #10-2412 (S) 380039",
+      address: "地址: Blk 39 Upper Boon Keng Road #10-2412 (S) 380039",
     },
   };
 
