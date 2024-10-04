@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import Closed from "./components/Closed";
 import Nav from "./components/Nav";
 import Open from "./components/Open";
-import OpenHalfday from "./components/OpenHalfday"; // Import the OpenHalfday component
+import OpenHalfdayAM from "./components/OpenHalfdayAM"; // Component for AM half-day opening
+import OpenHalfdayPM from "./components/OpenHalfdayPM"; // Component for PM half-day opening
 import { fetchHolidays } from "./firebaseHolidayFetcher";
 import WhatsAppIcon from "./components/WhatsappIcon";
 
 export default function Home() {
-  const [data, setData] = useState<any>(null);
   const [holidays, setHolidays] = useState<Record<string, string>>({});
-  const [halfDayHolidays, setHalfDayHolidays] = useState<
+  const [halfDayAMHolidays, setHalfDayAMHolidays] = useState<
+    Record<string, string>
+  >({});
+  const [halfDayPMHolidays, setHalfDayPMHolidays] = useState<
     Record<string, string>
   >({});
   const [language, setLanguage] = useState("en");
@@ -19,22 +22,24 @@ export default function Home() {
   useEffect(() => {
     fetchHolidays()
       .then((data) => {
-        // Separate full-day and half-day holidays
         const fullDayHolidays: Record<string, string> = {};
-        const halfDays: Record<string, string> = {};
+        const halfDaysAM: Record<string, string> = {};
+        const halfDaysPM: Record<string, string> = {};
 
         Object.keys(data).forEach((key) => {
           const date = data[key];
-          if (key.startsWith("halfday_")) {
-            halfDays[date] = key;
+          if (key.startsWith("halfday_am")) {
+            halfDaysAM[date] = key;
+          } else if (key.startsWith("halfday_pm")) {
+            halfDaysPM[date] = key;
           } else {
             fullDayHolidays[date] = key;
           }
         });
 
-        // set full and half days
         setHolidays(fullDayHolidays);
-        setHalfDayHolidays(halfDays);
+        setHalfDayAMHolidays(halfDaysAM);
+        setHalfDayPMHolidays(halfDaysPM);
       })
       .catch((error) => {
         console.error("Error fetching holidays: ", error);
@@ -53,11 +58,14 @@ export default function Home() {
   });
 
   const isHoliday = holidays && holidays.hasOwnProperty(todaysDate);
-  const isHalfDay =
-    halfDayHolidays && halfDayHolidays.hasOwnProperty(todaysDate);
+  const isHalfDayAM =
+    halfDayAMHolidays && halfDayAMHolidays.hasOwnProperty(todaysDate);
+  const isHalfDayPM =
+    halfDayPMHolidays && halfDayPMHolidays.hasOwnProperty(todaysDate);
 
-  const isOpen = isOpenDay && !isHoliday && !isHalfDay;
-  const isOpenHalfDay = isOpenDay && isHalfDay;
+  const isOpen = isOpenDay && !isHoliday && !isHalfDayAM && !isHalfDayPM;
+  const isOpenHalfDayAM = isOpenDay && isHalfDayAM;
+  const isOpenHalfDayPM = isOpenDay && isHalfDayPM;
 
   const isWorkingDay = (date: Date) => {
     const day = date.getDay();
@@ -68,10 +76,14 @@ export default function Home() {
     });
 
     const isHoliday = holidays && holidays.hasOwnProperty(formattedDate);
-    const isHalfDay =
-      halfDayHolidays && halfDayHolidays.hasOwnProperty(formattedDate);
+    const isHalfDayAM =
+      halfDayAMHolidays && halfDayAMHolidays.hasOwnProperty(formattedDate);
+    const isHalfDayPM =
+      halfDayPMHolidays && halfDayPMHolidays.hasOwnProperty(formattedDate);
 
-    return [1, 3, 5].includes(day) && !isHoliday && !isHalfDay;
+    return (
+      [1, 3, 5].includes(day) && !isHoliday && !isHalfDayAM && !isHalfDayPM
+    );
   };
 
   const workingDays = [];
@@ -106,8 +118,10 @@ export default function Home() {
       <div>
         {isOpen ? (
           <Open language={language} />
-        ) : isOpenHalfDay ? (
-          <OpenHalfday language={language} />
+        ) : isOpenHalfDayAM ? (
+          <OpenHalfdayAM language={language} />
+        ) : isOpenHalfDayPM ? (
+          <OpenHalfdayPM language={language} />
         ) : (
           <Closed language={language} />
         )}
@@ -123,7 +137,7 @@ export default function Home() {
         </a>
       </div>
       {hasWorkingDays ? (
-        <>
+        <div>
           <h2 className="text-2xl mt-8">
             {language === "en"
               ? "Working Days in the Next Two Weeks:"
@@ -134,7 +148,7 @@ export default function Home() {
               <li key={day}>{day}</li>
             ))}
           </ul>
-        </>
+        </div>
       ) : (
         <p className="mt-8">
           {language === "en"
