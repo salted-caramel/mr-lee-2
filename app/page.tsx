@@ -13,6 +13,9 @@ const WhatsAppIcon = dynamic(() => import("./components/WhatsappIcon"), {
   ssr: false,
 });
 const Nav = dynamic(() => import("./components/Nav"));
+const LoadingOverlay = dynamic(() => import("./components/LoadingOverlay"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [holidays, setHolidays] = useState<Record<string, string>>({});
@@ -23,6 +26,17 @@ export default function Home() {
     Record<string, string>
   >({});
   const [language, setLanguage] = useState("en");
+  const [loading, setLoading] = useState(true); // Set loading state initially true
+
+  useEffect(() => {
+    // Set a timer to hide the overlay after 2 seconds
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    // Clean up the timer
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     fetchHolidays()
@@ -96,57 +110,71 @@ export default function Home() {
 
   return (
     <div className="px-6 bg-gray-800 text-lg text-white">
-      <div>
-        <Nav
-          onLanguageChange={{
-            currentLanguage: language,
-            onChange: toggleLanguage,
-          }}
-        />
-      </div>
+      {/* Show overlay while loading is true */}
+      {loading && <LoadingOverlay />}
 
-      <div>
-        {isOpen ? (
-          <Open language={language} />
-        ) : isOpenHalfDayAM ? (
-          <OpenHalfdayAM language={language} />
-        ) : isOpenHalfDayPM ? (
-          <OpenHalfdayPM language={language} />
-        ) : (
-          <Closed language={language} />
-        )}
-      </div>
-      <div className="flex flex-col gap-4 items-center mt-8">
-        <a
-          role="button"
-          className="btn btn-primary w-24"
-          href="https://www.google.com/maps/dir//Block+39+Upper+Boon+Keng+Road+%2310-2412,+Singapore+380039"
-          target="_blank"
-        >
-          {language === "en" ? "Directions" : "路线"}
-        </a>
-      </div>
-      {hasWorkingDays ? (
-        <div>
-          <h2 className="text-2xl mt-8">
-            {language === "en"
-              ? "Working Days in the Next Two Weeks:"
-              : "未来两周工作日"}
-          </h2>
-          <ul className="list-disc list-inside">
-            {workingDays.map((day) => (
-              <li key={day}>{day}</li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p className="mt-8">
-          {language === "en"
-            ? "There are no working days in the next two weeks."
-            : "未来两周没有工作日"}
-        </p>
+      {/* Main content, shown after loading */}
+      {!loading && (
+        <>
+          {/* Navigation Component */}
+          <Nav
+            onLanguageChange={{
+              currentLanguage: language,
+              onChange: toggleLanguage,
+            }}
+          />
+
+          {/* Opening Status Components */}
+          <div>
+            {isOpen ? (
+              <Open language={language} />
+            ) : isOpenHalfDayAM ? (
+              <OpenHalfdayAM language={language} />
+            ) : isOpenHalfDayPM ? (
+              <OpenHalfdayPM language={language} />
+            ) : (
+              <Closed language={language} />
+            )}
+          </div>
+
+          {/* Directions Button */}
+          <div className="flex flex-col gap-4 items-center mt-8">
+            <a
+              role="button"
+              className="btn btn-primary w-24"
+              href="https://www.google.com/maps/dir//Block+39+Upper+Boon+Keng+Road+%2310-2412,+Singapore+380039"
+              target="_blank"
+            >
+              {language === "en" ? "Directions" : "路线"}
+            </a>
+          </div>
+
+          {/* Working Days Information */}
+          {hasWorkingDays ? (
+            <div>
+              <h2 className="text-2xl mt-8">
+                {language === "en"
+                  ? "Working Days in the Next Two Weeks:"
+                  : "未来两周工作日"}
+              </h2>
+              <ul className="list-disc list-inside">
+                {workingDays.map((day) => (
+                  <li key={day}>{day}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="mt-8">
+              {language === "en"
+                ? "There are no working days in the next two weeks."
+                : "未来两周没有工作日"}
+            </p>
+          )}
+
+          {/* WhatsApp Icon */}
+          <WhatsAppIcon />
+        </>
       )}
-      <WhatsAppIcon />
     </div>
   );
 }
