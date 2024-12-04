@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Closed from "./components/Closed";
-import Nav from "./components/Nav";
-import Open from "./components/Open";
-import OpenHalfdayAM from "./components/OpenHalfdayAM"; // Component for AM half-day opening
-import OpenHalfdayPM from "./components/OpenHalfdayPM"; // Component for PM half-day opening
+import { useEffect, useState, useMemo } from "react";
 import { fetchHolidays } from "./firebaseHolidayFetcher";
-import WhatsAppIcon from "./components/WhatsappIcon";
+import dynamic from "next/dynamic";
+import { processHolidays } from "./utils/HolidayProcessor";
+
+const Closed = dynamic(() => import("./components/Closed"));
+const Open = dynamic(() => import("./components/Open"));
+const OpenHalfdayAM = dynamic(() => import("./components/OpenHalfdayAM"));
+const OpenHalfdayPM = dynamic(() => import("./components/OpenHalfdayPM"));
+const WhatsAppIcon = dynamic(() => import("./components/WhatsappIcon"), {
+  ssr: false,
+});
+const Nav = dynamic(() => import("./components/Nav"));
 
 export default function Home() {
   const [holidays, setHolidays] = useState<Record<string, string>>({});
@@ -22,29 +27,14 @@ export default function Home() {
   useEffect(() => {
     fetchHolidays()
       .then((data) => {
-        const fullDayHolidays: Record<string, string> = {};
-        const halfDaysAM: Record<string, string> = {};
-        const halfDaysPM: Record<string, string> = {};
-
-        Object.keys(data).forEach((key) => {
-          const date = data[key];
-          if (key.startsWith("halfday_am")) {
-            halfDaysAM[date] = key;
-          } else if (key.startsWith("halfday_pm")) {
-            halfDaysPM[date] = key;
-          } else {
-            fullDayHolidays[date] = key;
-          }
-        });
-
+        const { fullDayHolidays, halfDaysAM, halfDaysPM } =
+          processHolidays(data);
         setHolidays(fullDayHolidays);
         setHalfDayAMHolidays(halfDaysAM);
         setHalfDayPMHolidays(halfDaysPM);
       })
-      .catch((error) => {
-        console.error("Error fetching holidays: ", error);
-      });
-  }, []);
+      .catch((error) => console.error("Error fetching holidays: ", error));
+  });
 
   const today = new Date();
   const dayOfWeek = today.getDay();
