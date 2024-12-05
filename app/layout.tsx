@@ -25,6 +25,10 @@ export default function RootLayout({
           name="google-site-verification"
           content="H1nvL6JpGoAp4WDht0GyA59rnbICK5ADqB9lgw2i59o"
         />
+        <meta
+          name="keywords"
+          content="mr lee, tcm, chiropractor, acupuncture, boon keng, upper boon keng, ubk, mr lee ubk, 李先生, 中医, 推拿, 新加坡推拿"
+        />
       </head>
       <body className={inter.className}>
         {children}
