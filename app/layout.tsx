@@ -23,7 +23,7 @@ export default function RootLayout({
         <meta name="robots" content="index, follow" />
         <meta
           name="google-site-verification"
-          content="L3z9h5HJ82WEeLnaVsgUNL03B4L-7Oz6erFS91L0UQA"
+          content="H1nvL6JpGoAp4WDht0GyA59rnbICK5ADqB9lgw2i59o"
         />
       </head>
       <body className={inter.className}>
