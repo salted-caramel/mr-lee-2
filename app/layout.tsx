@@ -1,6 +1,6 @@
-// layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import Script from "next/script";
 
@@ -24,6 +24,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
+        <Analytics />
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-BQEFECH8GR"
