@@ -32,7 +32,7 @@ export default function Home() {
     // Set a timer to hide the overlay after 2 seconds
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 5000);
 
     // Clean up the timer
     return () => clearTimeout(timer);
