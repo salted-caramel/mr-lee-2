@@ -25,7 +25,7 @@ const Closed = ({ language }: { language: string }) => {
 
   return (
     <div>
-      <h2 className="text-center text-xl bg-red-500 p-4">
+      <h2 className="text-center text-xl bg-red-500 p-4 h-screen">
         {language === "en" ? text.en.closedToday : text.cn.closedToday}
       </h2>
       <div className="flex flex-col gap-1 my-8">
