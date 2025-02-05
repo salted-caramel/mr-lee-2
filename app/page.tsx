@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // Import useRouter for prefetching
+
+import { useEffect, useState, useMemo } from "react";
 import { fetchHolidays } from "./firebaseHolidayFetcher";
 import dynamic from "next/dynamic";
 import { processHolidays } from "./utils/HolidayProcessor";
 
-// Dynamically import components
 const Closed = dynamic(() => import("./components/Closed"));
 const Open = dynamic(() => import("./components/Open"));
 const OpenHalfdayAM = dynamic(() => import("./components/OpenHalfdayAM"));
@@ -19,7 +18,6 @@ const LoadingOverlay = dynamic(() => import("./components/LoadingOverlay"), {
 });
 
 export default function Home() {
-  const router = useRouter(); // Initialize useRouter
   const [holidays, setHolidays] = useState<Record<string, string>>({});
   const [halfDayAMHolidays, setHalfDayAMHolidays] = useState<
     Record<string, string>
@@ -31,17 +29,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true); // Set loading state initially true
 
   useEffect(() => {
-    // Prefetch the home page ("/") during idle time
-    router.prefetch("/");
+    // Set a timer to hide the overlay after 2 seconds
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
 
-    // // Simulate a loading overlay for 5 seconds
-    // const timer = setTimeout(() => {
-    //   setLoading(false);
-    // }, 5000);
-
-    // // Clean up the timer
-    // return () => clearTimeout(timer);
-  }, [router]);
+    // Clean up the timer
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     fetchHolidays()
@@ -53,21 +48,25 @@ export default function Home() {
         setHalfDayPMHolidays(halfDaysPM);
       })
       .catch((error) => console.error("Error fetching holidays: ", error));
-  }, []);
+  });
 
   const today = new Date();
   const dayOfWeek = today.getDay();
+
   const isOpenDay = [1, 3, 5].includes(dayOfWeek);
+
   const todaysDate = today.toLocaleDateString("en-GB", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
+
   const isHoliday = holidays && holidays.hasOwnProperty(todaysDate);
   const isHalfDayAM =
     halfDayAMHolidays && halfDayAMHolidays.hasOwnProperty(todaysDate);
   const isHalfDayPM =
     halfDayPMHolidays && halfDayPMHolidays.hasOwnProperty(todaysDate);
+
   const isOpen = isOpenDay && !isHoliday && !isHalfDayAM && !isHalfDayPM;
   const isOpenHalfDayAM = isOpenDay && isHalfDayAM;
   const isOpenHalfDayPM = isOpenDay && isHalfDayPM;
@@ -79,11 +78,13 @@ export default function Home() {
       month: "2-digit",
       day: "2-digit",
     });
+
     const isHoliday = holidays && holidays.hasOwnProperty(formattedDate);
     const isHalfDayAM =
       halfDayAMHolidays && halfDayAMHolidays.hasOwnProperty(formattedDate);
     const isHalfDayPM =
       halfDayPMHolidays && halfDayPMHolidays.hasOwnProperty(formattedDate);
+
     return (
       [1, 3, 5].includes(day) && !isHoliday && !isHalfDayAM && !isHalfDayPM
     );
@@ -111,6 +112,7 @@ export default function Home() {
     <div className="px-6 bg-gray-800 text-lg text-white">
       {/* Show overlay while loading is true */}
       {loading && <LoadingOverlay />}
+
       {/* Main content, shown after loading */}
       {!loading && (
         <>
@@ -121,6 +123,7 @@ export default function Home() {
               onChange: toggleLanguage,
             }}
           />
+
           {/* Opening Status Components */}
           <div>
             {isOpen ? (
@@ -133,6 +136,7 @@ export default function Home() {
               <Closed language={language} />
             )}
           </div>
+
           {/* Directions Button */}
           <div className="flex flex-col gap-4 items-center mt-8">
             <a
@@ -144,6 +148,7 @@ export default function Home() {
               {language === "en" ? "Directions" : "路线"}
             </a>
           </div>
+
           {/* Working Days Information */}
           {hasWorkingDays ? (
             <div>
@@ -165,6 +170,7 @@ export default function Home() {
                 : "未来两周没有工作日"}
             </p>
           )}
+
           {/* WhatsApp Icon */}
           <WhatsAppIcon />
         </>
