@@ -1,9 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import DataWriter from "../components/DataWriter";
 import SignIn from "../components/SignIn";
 import { useRouter } from "next/navigation";
 import { fetchHolidays } from "../firebaseHolidayFetcher";
+import { firestore } from "../firebaseConfig";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
 
 const Page = () => {
   const [email, setEmail] = React.useState("");
@@ -11,6 +13,7 @@ const Page = () => {
   const router = useRouter();
   const [holidays, setHolidays] = useState(null);
   const [deviceModel, setDeviceModel] = useState("");
+  const hasLoggedRef = useRef(false);
 
   // Device detection function
   const detectDeviceModel = () => {
@@ -47,11 +50,37 @@ const Page = () => {
     return model;
   };
 
+  // Function to log device info to Firestore
+  const logDeviceInfoToFirestore = async (deviceModel: string) => {
+    try {
+      const timestamp = Timestamp.now();
+      const uniqueId = `${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
+
+      const docRef = doc(firestore, "device-info-add", uniqueId);
+
+      await setDoc(docRef, {
+        "Windows Desktop": timestamp,
+      });
+
+      console.log("Timestamp logged to Firestore successfully:", timestamp);
+    } catch (error) {
+      console.error("Error logging timestamp to Firestore:", error);
+    }
+  };
+
   // Run device detection on page load
   useEffect(() => {
-    const detectedModel = detectDeviceModel();
-    setDeviceModel(detectedModel);
-    console.log("Detected device model:", detectedModel);
+    if (!hasLoggedRef.current) {
+      const detectedModel = detectDeviceModel();
+      setDeviceModel(detectedModel);
+      console.log("Detected device model:", detectedModel);
+
+      // Log device info to Firestore
+      logDeviceInfoToFirestore(detectedModel);
+      hasLoggedRef.current = true;
+    }
   }, []);
 
   const handleFetchHolidays = () => {
