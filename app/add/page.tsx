@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataWriter from "../components/DataWriter";
 import SignIn from "../components/SignIn";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,49 @@ const Page = () => {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
   const [holidays, setHolidays] = useState(null);
+  const [deviceModel, setDeviceModel] = useState("");
+
+  // Device detection function
+  const detectDeviceModel = () => {
+    const userAgent = navigator.userAgent;
+    let model = "Unknown Device";
+
+    // iOS devices
+    if (/iPad/.test(userAgent)) {
+      model = "iPad";
+    } else if (/iPhone/.test(userAgent)) {
+      model = "iPhone";
+    } else if (/iPod/.test(userAgent)) {
+      model = "iPod";
+    }
+    // Android devices
+    else if (/Android/.test(userAgent)) {
+      // Try to extract specific Android device model
+      const androidMatch = userAgent.match(/\(Linux.*?;\s*([^;)]+)/);
+      if (androidMatch) {
+        model = androidMatch[1].trim();
+      } else {
+        model = "Android Device";
+      }
+    }
+    // Desktop browsers
+    else if (/Windows/.test(userAgent)) {
+      model = "Windows Desktop";
+    } else if (/Mac OS X/.test(userAgent)) {
+      model = "Mac Desktop";
+    } else if (/Linux/.test(userAgent)) {
+      model = "Linux Desktop";
+    }
+
+    return model;
+  };
+
+  // Run device detection on page load
+  useEffect(() => {
+    const detectedModel = detectDeviceModel();
+    setDeviceModel(detectedModel);
+    console.log("Detected device model:", detectedModel);
+  }, []);
 
   const handleFetchHolidays = () => {
     fetchHolidays()
@@ -35,6 +78,7 @@ const Page = () => {
     console.log(result);
     return router.push("/admin");
   };
+
   return (
     <div className="wrapper flex justify-center items-center h-screen">
       <div className="form-wrapper w-full max-w-md">
